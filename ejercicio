@@ -1,0 +1,38 @@
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <utility>
+
+using namespace std;
+
+class Twitter {
+private:
+    int timestamp;
+    unordered_map<int, unordered_set<int>> followers; // usuario -> conjunto de seguidos
+    unordered_map<int, vector<pair<int, int>>> tweets; // usuario -> lista de (timestamp, tweetId)
+
+public:
+    Twitter() {
+        timestamp = 0;
+    }
+
+    void postTweet(int userId, int tweetId) {
+        tweets[userId].emplace_back(timestamp++, tweetId);
+    }
+
+    vector<int> getNewsFeed(int userId) {
+        priority_queue<pair<int, int>> pq; // max heap por timestamp
+
+        // Añadir los propios tweets
+        if (tweets.count(userId)) {
+            for (const auto& tw : tweets[userId]) {
+                pq.push(tw);
+            }
+        }
+
+        // Añadir los tweets de los seguidos
+        if (followers.count(userId)) {
+            for (int followee : followers[userId]) {
+                if (tweets.count(followee)) {
+                    for (const auto& tw :
